@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="user.zc.spider.dao.DoubanBookMapper">
+	<resultMap id="BaseResultMap" type="user.zc.spider.entity.DoubanBook">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="nationality" property="nationality" jdbcType="VARCHAR" />
+		<result column="author" property="author" jdbcType="VARCHAR" />
+		<result column="book_site" property="book_site" jdbcType="VARCHAR" />
+		<result column="release_date" property="release_date" jdbcType="VARCHAR" />
+		<result column="rating_people" property="rating_people" jdbcType="INTEGER" />
+		<result column="create_time" property="create_time" jdbcType="TIME" />
+		<result column="rate" property="rate" jdbcType="FLOAT" />
+		<result column="book_pic_path" property="movie_pic_path" jdbcType="VARCHAR" />
+		<result column="synopsis" property="synopsis" jdbcType="INTEGER" />
+		<result column="book" property="book" jdbcType="VARCHAR" />
+		<result column="book_id" property="book_id" jdbcType="VARCHAR" />
+		<result column="e_book" property="e_book" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id,title,nationality,author,release_date,rating_people,create_time,rate,book_pic_path,synopsis,book,book_id,e_book
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from douban_book
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<select id="selectAll" resultMap="BaseResultMap"
+		parameterType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+		from douban_movie
+		where 1=1
+		<if test="release_date !=null and release_date!=''">
+			and release_date =  #{release_date,jdbcType=INTEGER}
+		</if>
+		<if test="direct !=null and direct!=''">
+			and direct =  #{direct,jdbcType=VARCHAR}
+		</if>
+		<if test="order !=null and order!=''">
+			${order}
+		</if>
+	</select>
+	<update id="update" parameterType="user.zc.spider.entity.DoubanMovie">
+		update douban_movie set
+		<trim  suffixOverrides="," >
+			version = version+1,
+			<if test="synopsis !=null and synopsis!=''">
+				synopsis =  #{synopsis,jdbcType=VARCHAR},
+			</if>
+			<if test="movie_pic_path !=null and movie_pic_path!=''">
+				movie_pic_path =  #{movie_pic_path,jdbcType=VARCHAR},
+			</if>
+			<if test="rating_people !=null and rating_people !=''">
+				rating_people =  #{rating_people,jdbcType=INTEGER},
+			</if>
+			<if test="rate !=null and rate!=''">
+				rate =  #{rate,jdbcType=INTEGER},
+			</if>
+		</trim>
+		where id =  #{id,jdbcType=INTEGER}
+	</update>
+	<select id="selectTopDirectList" resultMap="BaseResultMap"
+		parameterType="java.util.HashMap">
+		SELECT 
+		  COUNT(t.`direct`) AS film_total,
+		  FORMAT(AVG(t.`rate`),2) AS rate,  
+		  SUM(t.`rating_people`) AS rating_people,
+		  t.`direct` as direct
+		FROM
+		  douban_movie t 
+		GROUP BY t.`direct` 
+		ORDER BY film_total DESC LIMIT 0,10;
+	</select>
+	<insert id="insert" parameterType="user.zc.spider.model.UserInfo">
+		insert into douban_book (
+			id,create_time,book_id,title,author,book_site,nationality,release_date,rate,rating_people,book_pic_path,synopsis,book,e_book,version
+		)
+		values (
+			#{id,jdbcType=INTEGER},
+			now(),
+			#{book_id ,jdbcType=VARCHAR},
+			#{title ,jdbcType=VARCHAR},
+			#{author ,jdbcType=VARCHAR},
+			#{book_site ,jdbcType=VARCHAR},
+			#{nationality ,jdbcType=VARCHAR},
+			#{release_date ,jdbcType=VARCHAR},
+			#{rate ,jdbcType=FLOAT},
+			#{rating_people ,jdbcType=INTEGER},
+			#{book_pic_path ,jdbcType=VARCHAR},
+			#{synopsis ,jdbcType=VARCHAR},
+			#{book ,jdbcType=VARCHAR},
+			#{e_book ,jdbcType=VARCHAR},
+			#{version ,jdbcType=INTEGER}
+		)
+	</insert>
+</mapper>
